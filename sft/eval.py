@@ -30,9 +30,6 @@ def evaluate_accuracy(inference_results):
         category = result['classification'] if result['classification'] is not None else "unanswerable"
         category = category.replace("spatial_", "")
         
-        if category == "unanswerable":
-            print(f"Unanswerable question")
-        
         if category not in category_correct:
             category_correct[category] = 0
             category_total[category] = 0
