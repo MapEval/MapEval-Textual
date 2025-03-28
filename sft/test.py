@@ -1,12 +1,25 @@
 from unsloth import FastLanguageModel
 import json
 import re
+import json
+import sys
+
+def load_inference_results(file_path):
+    with open(file_path, "r") as f:
+        return json.load(f)
+    
+# Get the filename from the command line arguments
+if len(sys.argv) < 2:
+    print("Usage: python script.py <filename>")
+    sys.exit(1)
+
+filename = sys.argv[1]
 # Load the model and tokenizer
-output_dir = "llama-3.2-3b-finetuned"
+output_dir = filename+"-finetuned"
 # model = FastLanguageModel.from_pretrained(output_dir)
 model, tokenizer = FastLanguageModel.from_pretrained(
     output_dir,  # Your saved model
-    max_seq_length=5000,
+    max_seq_length=6000,
     load_in_4bit=True,
 )
 
@@ -33,10 +46,10 @@ def run_inference(example):
     prompt += f"Respond with just the option number ({'0, ' if example['answer']['correct'] == -1 else ''}1, 2, 3, etc.)."
 
     messages = [
-        {
-            "role": "system",
-            "content": "You are an AI assistant that answers Place related MCQ questions.",
-        },
+        # {
+        #     "role": "system",
+        #     "content": "You are an AI assistant that answers Place related MCQ questions.",
+        # },
         {"role": "user", "content": prompt}
     ]
     
@@ -94,7 +107,7 @@ for index, example in enumerate(test_dataset):
     # break
 
 # Save the results to a file
-with open("llama_finetuned_result.json", "w", encoding='utf-8') as f:
+with open(filename+".json", "w", encoding='utf-8') as f:
     json.dump(inference_results, f, indent=4)
 
 print("Inference completed. Results saved to json.")

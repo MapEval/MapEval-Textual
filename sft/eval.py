@@ -29,7 +29,7 @@ def evaluate_accuracy(inference_results):
         actual = result['correct_option']  # Correct answer option (0-indexed)
         category = result['classification'] if result['classification'] is not None else "unanswerable"
         category = category.replace("spatial_", "")
-        
+
         if category not in category_correct:
             category_correct[category] = 0
             category_total[category] = 0
@@ -43,13 +43,13 @@ def evaluate_accuracy(inference_results):
         category_total[category] = category_total.get(category, 0) + 1
     
     # Overall accuracy
-    overall_accuracy = correct_count / total_count if total_count > 0 else 0
+    overall_accuracy = 100*correct_count / total_count if total_count > 0 else 0
     
     # Category-wise accuracy
     category_accuracy = {}
     for category, correct in category_correct.items():
         total = category_total[category]
-        category_accuracy[category] = correct / total if total > 0 else 0
+        category_accuracy[category] = 100*correct / total if total > 0 else 0
 
     # Print categorical count
     print("Category-wise count:")
@@ -65,6 +65,11 @@ overall_accuracy, category_accuracy = evaluate_accuracy(inference_results)
 
     
 # Output the results
-print(f"Overall Accuracy: {overall_accuracy:.4f}")
-for category, accuracy in category_accuracy.items():
-    print(f"Accuracy for category '{category}': {accuracy:.4f}")
+# print(f"Overall Accuracy: {overall_accuracy:.4f}")
+# for category, accuracy in category_accuracy.items():
+#     print(f"Accuracy for category '{category}': {accuracy:.4f}")
+
+print("Results for:", filename)
+print("| Overall | POI | Nearby | Routing | Trip | Unanswerable |")
+print("|---------|-----|--------|---------|------|--------------|")
+print(f"| {overall_accuracy:.2f} | {category_accuracy.get('poi', 0):.2f} | {category_accuracy.get('nearby', 0):.2f} | {category_accuracy.get('routing', 0):.2f} | {category_accuracy.get('trip', 0):.2f} | {category_accuracy.get('unanswerable', 0):.2f} |")

@@ -57,7 +57,7 @@ max_seq_length = 4096
 dtype = None # Auto detection of dtype
 load_in_4bit = True # Reduce memory usage with 4-bit quantization
 model, tokenizer = FastLanguageModel.from_pretrained(
- model_name = "unsloth/Llama-3.2-3B-Instruct",
+model_name = "unsloth/Mistral-Nemo-Instruct-2407",
  max_seq_length = max_seq_length,
  dtype = dtype,
  load_in_4bit = load_in_4bit,
@@ -79,7 +79,10 @@ model = FastLanguageModel.get_peft_model(
 
 def formatting_prompts_func(examples):
  convos = examples["conversations"]
- texts = [tokenizer.apply_chat_template(convo, tokenize=False, add_generation_prompt=False) for convo in convos]
+ texts = [
+        f"<|user|>\n{convo[0]['content']}\n<|assistant|>\n{convo[1]['content']}"
+        for convo in examples["conversations"]
+    ]
  return { "text": texts }
 dataset = dataset.map(formatting_prompts_func, batched=True)
 
@@ -119,12 +122,13 @@ trainer = SFTTrainer(
 from unsloth.chat_templates import train_on_responses_only
 trainer = train_on_responses_only(
  trainer,
- instruction_part = "<|start_header_id|>user<|end_header_id|>\n\n",
- response_part = "<|start_header_id|>assistant<|end_header_id|>\n\n",
+ instruction_part = "<|user|>\n",
+ response_part = "<|assistant|>\n",
 )
+
 trainer_stats = trainer.train()
 
 # Save the model and tokenizer
-output_dir = "llama-3.2-3b-finetuned"
+output_dir = "mistral-nemo-finetuned"
 model.save_pretrained(output_dir)
 tokenizer.save_pretrained(output_dir)
